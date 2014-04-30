@@ -1,24 +1,33 @@
 module Y2014.M04.D29 where
 
---source https://twitter.com/1HaskellADay/status/460674924877590528
---solution https://twitter.com/1HaskellADay/status/460826282297540608
+--source https://twitter.com/1HaskellADay/status/461037308108500992
+--solution https://twitter.com/1HaskellADay/status/461188677012434945
 
-{-- splits
-    Lists the possible splits of a list
 
-   Examples
-   >>> splits [1..4]
-   [([],[1,2,3,4]),([1],[2,3,4]),([1,2],[3,4]),([1,2,3],[4]),([1,2,3,4],[])]
+{- | Act like takeWhile but includes the element that fails the test
 
-   >>> splits []
-   [([],[])]
+   >>> takeWhileWithFailure odd [1..4]
+   [1,2]
 
-   >>> splits "hello"
-   [("","hello"),("h","ello"),("he","llo"),("hel","lo"),("hell","o"),("hello","")]
---}
+   >>> takeWhileWithFailure odd [1,3,5]
+   [1,3,5]
 
-test :: [(String, String)]
-test = splits "hello"
+   >>> takeWhileWithFailure ((2 ==) . length)) ["hi", "world", "world", "world"]
+   ["hi","world"]
 
-splits :: [a] -> [([a],[a])]
-splits xs = scanl (\(sub1, sub2) _ -> (sub1 ++ [head sub2], tail sub2)) ([], xs) xs
+   >>> takeWhileWithFailure (<5) [10..20]
+   [10]
+-}
+
+
+test :: [Integer]
+test = takeWhileWithFailure (<5) [10..20]
+
+takeWhileWithFailure :: (a -> Bool) -> [a] -> [a]
+takeWhileWithFailure _ [] = []
+takeWhileWithFailure f (x:xs) = if f x 
+								then x : takeWhileWithFailure f xs 
+								else [x]
+
+theirs :: (a -> Bool) -> [a] -> [a]
+theirs = ((uncurry (++) . fmap (take 1)) .) . span
